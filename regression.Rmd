@@ -1,0 +1,143 @@
+---
+title: "Regression Analysis"
+author: "Kar"
+date: '2022-06-07'
+output: html_document
+---
+
+## 1 INTRODUCTION
+
+This project will analyse the business datasets used in the book **"ESSENTIALS OF STATISTICS FOR BUSINESS AND ECONOMICS"** by David R.Anderson (University of Cincinnati), Dennis J. Sweeney (University of Cincinnati), and Thomas A. Williams (Rochester Institute of Technology).
+
+
+## 2 R PACKAGES
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(cowplot)
+library(kableExtra)
+
+```
+
+## 3 ANALYSIS
+
+### 3.1 Transportation Schedule
+
+To develop a better work schedules, the managers of Butler Trucking Company wants to estimate the total daily travel time for their drivers. 
+
+There are 2 explanatory variables "miles traveled" and "number of deliveries", and 1 responding variable "travel time per hour". This analysis will find out the statistical relationship between the responding variable with these explanatory variable.
+
+Dataset:
+
+```{r}
+
+driving.assignment <- c(1:10)
+miles.traveled <- c(100, 50, 100, 100, 50, 80, 75, 65, 90, 90)
+number.of.deliveries <- c(4, 3, 4, 2, 2, 2, 3, 4, 3, 2)
+travel.time.hrs <- c(9.3, 4.8, 8.9, 6.5, 4.2, 6.2, 7.4, 6, 7.6, 6.1)
+
+transport.df <- data.frame(driving.assignment, miles.traveled, number.of.deliveries, travel.time.hrs)
+
+transport.df %>% kbl() %>% kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F)
+
+```
+
+```{r}
+g1.transport <- ggplot(transport.df, aes(x = miles.traveled, y = travel.time.hrs)) + geom_point()
+g2.transport <- ggplot(transport.df, aes(x = number.of.deliveries, y = travel.time.hrs)) + geom_point()
+
+plot_grid(g1.transport, g2.transport)
+
+
+```
+
+**Simple linear Regression**:
+
+The dataset will be analysed with multiple linear regression method, but following is a simple linear regression, it is an optional step, I create it to compare with multiple linear regression on how metrics change.
+
+```{r}
+transport.lm <- lm(travel.time.hrs ~ miles.traveled, 
+                   data = transport.df)
+
+summary(transport.lm)
+
+```
+* At the 0.05 level of significance, the F-statistic is 15.83 and its corresponding p-value of 0.00408 indicates that the relationship is significant. Therefore, the null hypothesis is rejected because the p-value is less than a = 0.05. 
+
+* The relationship between total travel time and miles is significant related. Longer travel times are associated with more miles travel. 
+
+* With a **coefficient of determination** of R-sq = 66.4%. We see that 66.4% of the variability in travel time can be explained by the linear effect of the number of miles traveled.
+
+* formula: 
+
+y = 1.27 + 0.067(miles.travel)
+
+**Miltiple Lienar regression**
+
+```{r}
+names(transport.df)
+
+```
+
+```{r}
+transport.lm2 <- lm(travel.time.hrs ~ miles.traveled + number.of.deliveries,
+                    data = transport.df)
+
+summary(transport.lm2)
+
+```
+Both variables are statistically associated with the traveling time. 
+
+* b1: 0.0611. It is expecting that 0.0611 hours (3.7 minutes) will increase in travel time corresponding to an increase in **1 mile** in the distance traveled when the *number of deliveries* is held constant. 
+
+* b2: 0.923. It is expecting that 0.923 hours (55 minutes) will increase in travel time corresponding to an increase in **1 delivery** when the **number of miles** traveled is held constant.
+
+
+### 3.2 Movie Theater Gross Revenue
+
+The owner of showtime Movie Theaters, Inc, would like to estimate weekly gross revenue as a function of advertising expenditures. 
+
+Responding variables:
+* weekly.gross.rev, in the unit of $1000s
+
+Explanatory veriables:
+* Tv.ads, in the unit of $1000s  
+* Newspaper.ads, in the unit of $1000s  
+
+Historical data: 
+
+```{r}
+weekly.gross.rev <- c(96, 90, 95, 92, 95, 94, 94, 94)
+tv.ads <- c(5, 2, 4, 2.5, 3, 3.5, 2.5, 3)
+newpaper.ads <- c(1.5, 2, 1.5, 2.5, 3.3, 2.3, 4.2, 2.5)
+
+movie.df <- data.frame(weekly.gross.rev, tv.ads, newpaper.ads)
+
+movie.df %>% kbl() %>% kable_styling(bootstrap_options = c("striped", "bordered"), full_width = F)
+
+```
+
+```{r}
+g1.movie <- ggplot(movie.df, aes(x = tv.ads, y = weekly.gross.rev)) + geom_point()
+g2.movie <- ggplot(movie.df, aes(x = newpaper.ads, y = weekly.gross.rev)) + geom_point()
+
+plot_grid(g1.movie, g2.movie)
+```
+
+Q1: Develop an estimated regression equation with the amount of tv advertising as the independent variable.
+
+```{r}
+movie.lm <- lm(weekly.gross.rev ~ tv.ads, 
+               data = movie.df)
+
+summary(movie.lm)
+
+```
+* At the 0.05 level of significance (alpha), the F test of 11.27 and the p-value of 0.015 indicates that the relationship between tvads and weekly gross revenue is significant. 
+
+* Equation:  y = 88.637 * 1.70 (tv.ads)
+
+
+
+
+
